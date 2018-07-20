@@ -21,7 +21,7 @@ namespace crud2.Controllers
         public IActionResult Index()
         {
             var model = this._context.Customers.ToList(); // context in içindeki customers kullanılıyor. db set içindeki
-            return View();
+            return View(model);
         }
 
         public IActionResult Details(int id)
@@ -52,23 +52,39 @@ namespace crud2.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id,[Bind("Id","Name","Email")]Customer customer)
         {
-            this._context.Customers.Update(customer);
-            this._context.SaveChanges();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                this._context.Customers.Update(customer);
+                this._context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
         }
 
         public IActionResult Delete(int id)
         {
             var model = this._context.Customers.Where(c => c.Id == id).FirstOrDefault();
-            return View();
+            return View(model);
         }
 
-        public IActionResult Delete(int id, Customer customer)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id, [Bind("Id", "Name", "Email")]Customer customer)
         {
-            var model = this._context.Customers.Where(c => c.Id == id).FirstOrDefault();
-            this._context.Customers.Remove(model);
-            this._context.SaveChanges();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                var model = this._context.Customers.Where(c => c.Id == id).FirstOrDefault();
+                this._context.Customers.Remove(model);
+                this._context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
         }
 
     }
